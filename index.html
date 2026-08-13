@@ -604,6 +604,112 @@
   }
   .confirm-d{font-size:12.5px;color:#6b5e49;line-height:1.5;margin-bottom:12px;}
 
+  /* ===== Sealed role envelope ===== */
+  .env-stage{
+    display:flex;flex-direction:column;align-items:center;
+    padding:18px 0 6px;perspective:1400px;
+  }
+  .envelope{
+    position:relative;width:min(300px,86vw);height:calc(min(300px,86vw)*0.66);
+    cursor:pointer;transform-style:preserve-3d;
+    transition:transform .5s cubic-bezier(.2,1,.3,1);
+    margin-bottom:14px;
+  }
+  .env-stage.sealed .envelope:hover{transform:translateY(-4px) rotate(-0.6deg);}
+  .env-stage.sealed .envelope:active{transform:scale(0.98);}
+
+  /* body: the back wall of the envelope */
+  .env-body{
+    position:absolute;inset:0;border-radius:4px;z-index:1;
+    background:linear-gradient(150deg,#211C15,#0E0C0A);
+    border:1px solid #3a3229;
+    box-shadow:0 14px 34px rgba(0,0,0,0.55);
+  }
+  /* the card that rises out */
+  .env-card{
+    position:absolute;left:7%;right:7%;bottom:8%;
+    height:88%;border-radius:4px;z-index:2;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+    border:3px solid;text-align:center;padding:12px;
+    transform:translateY(0) scale(0.97);opacity:0;
+    transition:transform .75s cubic-bezier(.2,1,.3,1), opacity .3s ease .1s;
+  }
+  .env-card.liberal{background:linear-gradient(160deg,#28434B,#1B2E33);border-color:var(--teal-light);}
+  .env-card.fascist{background:linear-gradient(160deg,#8E1D20,#5C1113);border-color:#e08a8c;}
+  .env-card.hitler{background:linear-gradient(160deg,#8E1D20,#3A0D0E);border-color:var(--brass);}
+  .env-card-eyebrow{
+    font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:0.24em;
+    text-transform:uppercase;color:rgba(236,227,203,0.6);
+  }
+  .env-card-name{
+    font-family:'Oswald',sans-serif;font-weight:700;
+    font-size:clamp(26px,8.5vw,38px);line-height:1;letter-spacing:0.03em;
+    text-transform:uppercase;color:var(--paper);
+  }
+  .env-card.hitler .env-card-name{color:var(--brass);}
+  .env-card-base{
+    font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:0.18em;
+    text-transform:uppercase;color:rgba(236,227,203,0.55);
+  }
+  /* front pocket, hides the card when closed */
+  .env-front{
+    position:absolute;left:0;right:0;bottom:0;height:62%;z-index:3;
+    background:linear-gradient(170deg,#1A1611,#000);
+    border:1px solid #3a3229;border-top:none;
+    border-radius:0 0 4px 4px;
+    clip-path:polygon(0 18%, 50% 0, 100% 18%, 100% 100%, 0 100%);
+    display:flex;align-items:flex-end;justify-content:center;padding-bottom:12px;
+  }
+  .env-tag{
+    font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:0.26em;
+    text-transform:uppercase;color:var(--brass);
+    border:1px solid rgba(199,162,51,0.5);padding:5px 12px;border-radius:2px;
+    background:rgba(0,0,0,0.4);
+  }
+  /* flap */
+  .env-flap{
+    position:absolute;left:0;right:0;top:0;height:56%;z-index:4;
+    background:linear-gradient(190deg,#241E17,#100D0A);
+    border:1px solid #3a3229;
+    clip-path:polygon(0 0, 100% 0, 50% 100%);
+    transform-origin:top center;transform:rotateX(0deg);
+    transition:transform .6s cubic-bezier(.4,0,.2,1), z-index 0s .3s;
+    display:flex;align-items:flex-start;justify-content:center;
+  }
+  .env-wax{
+    margin-top:34%;width:38px;height:38px;border-radius:50%;
+    background:radial-gradient(circle at 38% 34%, #C23134, #7A1518);
+    border:1px solid #5d1013;
+    display:flex;align-items:center;justify-content:center;
+    color:rgba(255,255,255,0.75);font-size:17px;
+    box-shadow:0 3px 8px rgba(0,0,0,0.5), inset 0 -2px 5px rgba(0,0,0,0.35);
+    transition:opacity .3s ease, transform .4s ease;
+  }
+
+  /* opening + open states */
+  .env-stage.opening .env-flap,
+  .env-stage.open .env-flap{
+    transform:rotateX(-172deg);z-index:0;
+  }
+  .env-stage.opening .env-wax,
+  .env-stage.open .env-wax{opacity:0;transform:scale(0.7);}
+  .env-stage.opening .env-card,
+  .env-stage.open .env-card{
+    transform:translateY(-26%) scale(1);opacity:1;z-index:5;
+  }
+  .env-stage.open .env-front,
+  .env-stage.opening .env-front{box-shadow:0 -6px 18px rgba(0,0,0,0.4);}
+
+  .env-hint{
+    font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:0.16em;
+    text-transform:uppercase;color:var(--ash);text-align:center;
+  }
+  .env-stage.open .env-hint{color:#5f594d;}
+
+  @media (prefers-reduced-motion: reduce){
+    .envelope,.env-card,.env-flap,.env-wax{transition:none !important;}
+  }
+
   .log{margin-top:20px;}
   .log-title{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:0.13em;text-transform:uppercase;color:var(--brass);margin-bottom:8px;}
   .log-item{font-size:12.5px;color:var(--ash);padding:5px 0;border-bottom:1px solid rgba(236,227,203,0.06);line-height:1.45;}
@@ -778,10 +884,10 @@
   </section>
 
   <section class="screen" id="screen-role">
+    <div id="envelopeWrap"></div>
     <div id="roleCardWrap"></div>
     <div id="knowWrap"></div>
-    <button class="btn btn-primary" id="roleAckBtn">I've Memorised It</button>
-    <p class="hint">Keep this private. The game starts once everyone has looked.</p>
+    <div id="roleActions"></div>
   </section>
 
   <section class="screen" id="screen-game">
@@ -830,7 +936,7 @@ function getDbUrl(){
   try{ const s = localStorage.getItem('sh_db_url'); return s ? s.replace(/\/+$/,'') : ''; }catch(e){ return ''; }
 }
 
-const S = { name:'', code:'', joined:false, db:'', game:null, lastRenderKey:'', roleShown:false, alliesKey:'', prev:null, cinemaQueue:[], cinemaActive:false, rosterKey:'', aboutOpen:false, options:{}, abandonArmed:false, resolveAttempted:null,
+const S = { name:'', code:'', joined:false, db:'', game:null, lastRenderKey:'', roleShown:false, alliesKey:'', prev:null, cinemaQueue:[], cinemaActive:false, rosterKey:'', aboutOpen:false, options:{}, abandonArmed:false, resolveAttempted:null, reclaimArmed:null, envelopeState:'sealed', roleRenderKey:'',
   clientId: Math.random().toString(36).slice(2,10) + Date.now().toString(36) };
 let pollTimer = null;
 let heartbeatTimer = null;
@@ -1239,38 +1345,106 @@ function renderPlayers(g){
 function renderRoleReveal(g){
   const m=me(g);
   if(!m) return;
+
+  // Only rebuild when something meaningful changed, or the envelope animation
+  // would restart on every poll.
+  const seen=g.players.filter(p=>p.seen).length;
+  const key = m.name+'|'+m.role+'|'+m.special+'|'+S.envelopeState+'|'+m.seen+'|'+seen;
+  if(key===S.roleRenderKey) return;
+  S.roleRenderKey=key;
+
   const sp = m.special ? specialById(m.special) : null;
   const baseName = m.role==='hitler'?'Hitler':(m.role==='fascist'?'Fascist':'Liberal');
   const cls = m.role==='liberal'?'liberal':(m.role==='hitler'?'hitler':'fascist');
-  document.getElementById('roleCardWrap').innerHTML = `
-    <div class="role-card ${cls}">
-      <div class="role-eyebrow">Your Secret Role</div>
-      <div class="role-name">${sp ? esc(sp.label) : baseName}</div>
-      ${sp ? `<div class="role-special-base">${baseName}</div>` : ''}
-      <div class="role-party">Party membership: ${m.party==='liberal'?'Liberal':'Fascist'}</div>
-    </div>
-    ${sp ? `<div class="role-brief">${esc(sp.desc)}</div>` : ''}`;
+  const displayName = sp ? sp.label : baseName;
+
+  // ---- the envelope ----
+  document.getElementById('envelopeWrap').innerHTML = `
+    <div class="env-stage ${S.envelopeState}">
+      <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Open your secret role">
+        <div class="env-body"></div>
+        <div class="env-card ${cls}">
+          <div class="env-card-eyebrow">Your Secret Role</div>
+          <div class="env-card-name">${esc(displayName)}</div>
+          ${sp?`<div class="env-card-base">${baseName}</div>`:''}
+        </div>
+        <div class="env-front">
+          <div class="env-tag">Secret Role</div>
+        </div>
+        <div class="env-flap"><div class="env-wax">✶</div></div>
+      </div>
+      <div class="env-hint" id="envHint">${
+        S.envelopeState==='sealed'
+          ? 'Tap the envelope to open it'
+          : 'Tap the card to seal it again'
+      }</div>
+    </div>`;
+
+  const envEl=document.getElementById('envelope');
+  envEl.onclick = ()=>{
+    if(S.envelopeState==='sealed'){
+      S.envelopeState='opening';
+      S.roleRenderKey='';
+      renderRoleReveal(g);
+      setTimeout(()=>{ S.envelopeState='open'; S.roleRenderKey=''; renderRoleReveal(S.game||g); }, 900);
+    } else if(S.envelopeState==='open'){
+      S.envelopeState='sealed';
+      S.roleRenderKey='';
+      renderRoleReveal(g);
+    }
+  };
+  envEl.onkeydown = e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); envEl.onclick(); } };
+
+  // ---- everything behind the envelope stays hidden until it's opened ----
+  const open = S.envelopeState==='open';
+  document.getElementById('roleCardWrap').innerHTML = (open && sp)
+    ? `<div class="role-brief">${esc(sp.desc)}</div>` : '';
 
   const n=g.players.length;
   const cfg=SETUP[n] || {lib:0,fasc:0};
-  const compLine = `<div class="know-box">
-      <div class="know-title">This Table</div>
-      <div style="font-size:14px;color:var(--paper-2);">${cfg.lib} Liberal${cfg.lib>1?'s':''} · ${cfg.fasc} Fascist${cfg.fasc>1?'s':''} · 1 Hitler <span style="color:var(--ash);">(${n} players)</span></div>
-    </div>`;
+  if(open){
+    const compLine = `<div class="know-box">
+        <div class="know-title">This Table</div>
+        <div style="font-size:14px;color:var(--paper-2);">${cfg.lib} Liberal${cfg.lib>1?'s':''} · ${cfg.fasc} Fascist${cfg.fasc>1?'s':''} · 1 Hitler <span style="color:var(--ash);">(${n} players)</span></div>
+      </div>`;
+    const blocks = knowledgeFor(g, m).map(b=>`
+      <div class="know-box">
+        <div class="know-title">${b.title}</div>
+        <ul class="know-list">${b.lines.map(l=>`<li>${l}</li>`).join('')}</ul>
+        ${b.note?`<div class="know-note">${b.note}</div>`:''}
+      </div>`).join('');
+    document.getElementById('knowWrap').innerHTML = compLine + blocks;
+  } else {
+    document.getElementById('knowWrap').innerHTML = '';
+  }
 
-  const blocks = knowledgeFor(g, m).map(b=>`
-    <div class="know-box">
-      <div class="know-title">${b.title}</div>
-      <ul class="know-list">${b.lines.map(l=>`<li>${l}</li>`).join('')}</ul>
-      ${b.note?`<div class="know-note">${b.note}</div>`:''}
-    </div>`).join('');
-
-  document.getElementById('knowWrap').innerHTML = compLine + blocks;
-
-  const seen=g.players.filter(p=>p.seen).length;
-  const btn=document.getElementById('roleAckBtn');
-  if(m.seen){ btn.disabled=true; btn.textContent=`Waiting — ${seen} / ${g.players.length} ready`; }
-  else { btn.disabled=false; btn.textContent="I've Memorised It"; }
+  // ---- actions ----
+  const actions=document.getElementById('roleActions');
+  if(!open){
+    actions.innerHTML = `<p class="hint">Your role is sealed inside. Open it somewhere nobody can see your screen.</p>`;
+    return;
+  }
+  actions.innerHTML = `
+    <button class="btn btn-ghost" id="resealBtn" style="margin-bottom:10px;">Seal It Again</button>
+    <button class="btn btn-primary" id="roleAckBtn">${
+      m.seen ? `Waiting — ${seen} / ${g.players.length} ready` : "I've Memorised It"
+    }</button>
+    <p class="hint">Keep this private. The game starts once everyone has looked.</p>`;
+  const ack=document.getElementById('roleAckBtn');
+  ack.disabled = !!m.seen;
+  ack.onclick = async ()=>{
+    const gg=await dbGet(`games/${S.code}`);
+    if(!gg) return;
+    const idx=gg.players.findIndex(p=>p.name===S.name);
+    if(idx>=0) await dbPut(`games/${S.code}/players/${idx}/seen`, true);
+    S.roleRenderKey='';
+    await tick();
+  };
+  document.getElementById('resealBtn').onclick = ()=>{
+    S.envelopeState='sealed';
+    S.roleRenderKey='';
+    renderRoleReveal(g);
+  };
 }
 
 function waitingBlock(title, sub, count, total){
@@ -2187,6 +2361,14 @@ async function tick(){
     }
 
     if(g.phase==='roleReveal'){
+      // A freshly dealt game must start sealed, even if the previous one was
+      // left open on this device.
+      const dealId = g.players.map(p=>p.name+':'+p.role+':'+p.special).join('|');
+      if(S.sealedForDeal !== dealId){
+        S.sealedForDeal = dealId;
+        S.envelopeState = 'sealed';
+        S.roleRenderKey = '';
+      }
       renderRoleReveal(g);
       showScreen('screen-role');
       S.lastRenderKey='';
@@ -2388,14 +2570,6 @@ document.getElementById('abandonBtn').onclick = async ()=>{
 document.getElementById('cinema').onclick = closeCinema;
 
 document.getElementById('hdrRole').onclick = toggleRoleBadge;
-
-document.getElementById('roleAckBtn').onclick = async ()=>{
-  const g=await dbGet(`games/${S.code}`);
-  if(!g) return;
-  const idx=g.players.findIndex(p=>p.name===S.name);
-  if(idx>=0) await dbPut(`games/${S.code}/players/${idx}/seen`, true);
-  await tick();
-};
 
 (function init(){
   const url=getDbUrl();
