@@ -1,0 +1,108 @@
+Secret Hitler — Table Companion
+An unofficial, non-commercial fan-made companion app.
+
+Copyright (c) 2026 Diego Soria
+
+================================================================================
+NOTICE OF ORIGIN AND MODIFICATION
+================================================================================
+
+This work is an ADAPTATION of "Secret Hitler", a tabletop social deduction game.
+
+Original work:
+    Secret Hitler
+    Designed by Mike Boxleiter, Tommy Maranges and Max Temkin
+    Illustrated by Mackenzie Schubert
+    Published by Goat, Wolf & Cabbage
+    https://www.secrethitler.com/
+
+The original work is licensed under a Creative Commons
+Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0):
+    https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+CHANGES MADE: This is a modified adaptation, not a reproduction. The original is
+a physical tabletop game with printed components. This adaptation reimplements
+its rules as a digital multi-device web application. Specifically:
+
+  - Secret roles are dealt automatically to each player's own device, replacing
+    physical envelopes and the closed-eyes night phase.
+  - Voting is conducted privately on each device, replacing printed Ja/Nein
+    ballot cards.
+  - The policy deck, election tracker and presidential powers are tracked
+    automatically rather than with physical tiles and markers.
+  - All visual design, typography, colour palette, layout and wording are
+    original to this adaptation. NO original artwork, illustration, graphic
+    design or printed component from the published game is reproduced here.
+  - Features with no printed equivalent have been added: a proceedings log,
+    animal avatars for players in the waiting room, and full-screen
+    announcements of enacted policies and election results.
+  - An OPTIONAL VARIANT has been added that is not part of the original game.
+    It introduces six additional hidden roles - Churchill, The Spy, the
+    Gestapo, The Italian, the Doppelganger and The Executioner - whose
+    information structure is adapted from the roles Merlin, Percival, Mordred,
+    Oberon, Morgana and the Assassin in the tabletop game "The Resistance:
+    Avalon" by Don Eskridge. These roles are an original reimplementation
+    written for this adaptation; no text, artwork or component from Avalon is
+    reproduced, and this project is not affiliated with or endorsed by the
+    creators or publishers of Avalon. The variant is off by default, and the
+    game plays by the standard published rules unless it is switched on.
+
+THIS IS NOT AN OFFICIAL PRODUCT. It is not affiliated with, endorsed by,
+sponsored by, or connected to Goat, Wolf & Cabbage or any of the creators or
+publishers of Secret Hitler. Nothing in this work should be taken to suggest
+that the licensors endorse this adaptation or its author.
+
+The name "Secret Hitler" is used here descriptively, to identify which game
+this application accompanies.
+
+================================================================================
+LICENSE FOR THIS ADAPTATION
+================================================================================
+
+In accordance with the ShareAlike condition of the original license, this
+adaptation is released under the same license:
+
+    Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+    (CC BY-NC-SA 4.0)
+
+You are free to:
+
+    Share — copy and redistribute the material in any medium or format
+    Adapt — remix, transform, and build upon the material
+
+Under the following terms:
+
+    Attribution — You must give appropriate credit, provide a link to the
+    license, and indicate if changes were made. You may do so in any reasonable
+    manner, but not in any way that suggests the licensor endorses you or your
+    use.
+
+    NonCommercial — You may not use the material for commercial purposes.
+
+    ShareAlike — If you remix, transform, or build upon the material, you must
+    distribute your contributions under the same license as the original.
+
+    No additional restrictions — You may not apply legal terms or technological
+    measures that legally restrict others from doing anything the license
+    permits.
+
+The full legal text of this license is available at:
+    https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
+
+A human-readable summary is available at:
+    https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+================================================================================
+DISCLAIMER OF WARRANTY
+================================================================================
+
+This work is provided "as is", without warranty of any kind, express or
+implied, including but not limited to the warranties of merchantability,
+fitness for a particular purpose and noninfringement. In no event shall the
+author be liable for any claim, damages or other liability arising from, out
+of or in connection with this work or its use.
+
+This adaptation is provided for private, non-commercial play. It carries no
+guarantee of being a complete or faithful implementation of the published
+rules. Where this application and the published rulebook disagree, the
+published rulebook is correct.
