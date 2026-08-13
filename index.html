@@ -587,6 +587,23 @@
     padding-left:11px;border-left:2px solid #c9a94f;
   }
 
+  .pcard.dimmed{opacity:0.28;transform:scale(0.94);}
+  .pcard.picked{
+    box-shadow:0 0 0 3px var(--ink), 0 8px 20px rgba(0,0,0,0.35);
+    transform:translateY(-4px);
+  }
+  .confirm-bar{
+    margin-top:16px;padding:14px;border-radius:4px;
+    background:#F6F0DC;border:2px solid var(--ink);
+    animation:confirmIn .22s ease;
+  }
+  @keyframes confirmIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  .confirm-q{
+    font-family:'Oswald',sans-serif;font-size:15px;text-transform:uppercase;
+    letter-spacing:0.02em;color:var(--ink);margin-bottom:5px;line-height:1.3;
+  }
+  .confirm-d{font-size:12.5px;color:#6b5e49;line-height:1.5;margin-bottom:12px;}
+
   .log{margin-top:20px;}
   .log-title{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:0.13em;text-transform:uppercase;color:var(--brass);margin-bottom:8px;}
   .log-item{font-size:12.5px;color:var(--ash);padding:5px 0;border-bottom:1px solid rgba(236,227,203,0.06);line-height:1.45;}
@@ -1404,6 +1421,38 @@ function turnStrip(label, name){
   </div>`;
 }
 
+// Two-step confirmation for irreversible policy choices. The chosen card is
+// marked, the rest dim, and a confirm bar appears — so a mis-tap costs nothing.
+function armPolicyChoice(body, cardEl, cfg){
+  body.querySelectorAll('.pcard').forEach(c=>c.classList.remove('picked','dimmed'));
+  body.querySelectorAll('.pcard').forEach(c=>{
+    if(c===cardEl) c.classList.add('picked'); else c.classList.add('dimmed');
+  });
+  const old=body.querySelector('.confirm-bar');
+  if(old) old.remove();
+  const bar=document.createElement('div');
+  bar.className='confirm-bar';
+  bar.innerHTML=`
+    <div class="confirm-q">${cfg.question}</div>
+    <div class="confirm-d">${cfg.detail}</div>
+    <button class="btn ${cfg.danger?'btn-danger':'btn-primary'}" data-act="yes">${esc(cfg.confirmLabel)}</button>
+    <button class="btn btn-ghost" data-act="no" style="border-color:#b7a97f;color:#54493a;">Cancel</button>`;
+  const holder=body.querySelector('.folder') || body;
+  holder.appendChild(bar);
+  bar.scrollIntoView({behavior:'smooth', block:'nearest'});
+
+  bar.querySelector('[data-act="no"]').onclick=()=>{
+    body.querySelectorAll('.pcard').forEach(c=>c.classList.remove('picked','dimmed'));
+    bar.remove();
+  };
+  bar.querySelector('[data-act="yes"]').onclick=async (e)=>{
+    const b=e.currentTarget;
+    b.disabled=true; b.textContent='Confirming…';
+    try{ await cfg.onConfirm(); }
+    catch(err){ toast('That did not go through — try again.'); b.disabled=false; b.textContent=cfg.confirmLabel; }
+  };
+}
+
 function renderKey(g){
   return [
     g.phase, g.presidentIndex, g.nominee, g.chancellor,
@@ -1586,18 +1635,26 @@ function renderGame(g){
           <div class="policy-row">
             ${hand.map((c,i)=>`<div class="pcard ${c}" data-i="${i}">${c==='lib'?'Liberal':'Fascist'}</div>`).join('')}
           </div>
-          <p class="hint-dark">Tap the card you want to throw away.</p>
+          <p class="hint-dark">Tap the card you want to throw away — you'll be asked to confirm.</p>
         </div>`;
       body.querySelectorAll('.pcard').forEach(el=>{
-        el.onclick = async ()=>{
+        el.onclick = ()=>{
           const i=parseInt(el.dataset.i,10);
-          const g2=await dbGet(`games/${S.code}`);
-          if(!g2 || g2.phase!=='legPresident') return;
-          const h=g2.presHand.slice();
-          const [dropped]=h.splice(i,1);
-          g2.discard=g2.discard||[]; g2.discard.push(dropped);
-          g2.chanHand=h; g2.presHand=null; g2.phase='legChancellor';
-          await saveGame(g2);
+          const card=(g.presHand||[])[i];
+          armPolicyChoice(body, el, {
+            question:`Discard the <strong>${card==='lib'?'Liberal':'Fascist'}</strong> policy?`,
+            detail:'The other two go to the Chancellor. This cannot be undone.',
+            confirmLabel:'Yes, discard it',
+            onConfirm: async ()=>{
+              const g2=await dbGet(`games/${S.code}`);
+              if(!g2 || g2.phase!=='legPresident') return;
+              const h=g2.presHand.slice();
+              const [dropped]=h.splice(i,1);
+              g2.discard=g2.discard||[]; g2.discard.push(dropped);
+              g2.chanHand=h; g2.presHand=null; g2.phase='legChancellor';
+              await saveGame(g2);
+            }
+          });
         };
       });
     } else {
@@ -1617,22 +1674,33 @@ function renderGame(g){
           <div class="policy-row">
             ${hand.map((c,i)=>`<div class="pcard ${c}" data-i="${i}">${c==='lib'?'Liberal':'Fascist'}</div>`).join('')}
           </div>
-          <p class="hint-dark">Tap the card you want to <strong>discard</strong>. The other one is enacted.</p>
+          <p class="hint-dark">Tap the card you want to <strong>discard</strong>; the other becomes law. You'll be asked to confirm.</p>
           ${vetoOK?`<button class="btn btn-ghost" id="vetoBtn" style="margin-top:14px;border-color:#b7a97f;color:#54493a;">Propose Veto</button>`:''}
         </div>`;
       body.querySelectorAll('.pcard').forEach(el=>{
-        el.onclick = async ()=>{
+        el.onclick = ()=>{
           const i=parseInt(el.dataset.i,10);
-          const g2=await dbGet(`games/${S.code}`);
-          if(!g2 || g2.phase!=='legChancellor') return;
-          const h=g2.chanHand.slice();
-          const [dropped]=h.splice(i,1);
-          g2.discard=g2.discard||[]; g2.discard.push(dropped);
-          const enacted=h[0];
-          g2.chanHand=null;
-          addLog(g2, `${g2.chancellor} enacts a ${enacted==='lib'?'Liberal':'Fascist'} policy.`);
-          enactPolicy(g2,enacted,false);
-          await saveGame(g2);
+          const hand=(g.chanHand||[]);
+          const discarded=hand[i];
+          const enacted=hand[i===0?1:0];
+          armPolicyChoice(body, el, {
+            question:`Discard <strong>${discarded==='lib'?'Liberal':'Fascist'}</strong> and enact <strong>${enacted==='lib'?'Liberal':'Fascist'}</strong>?`,
+            detail:`A ${enacted==='lib'?'Liberal':'Fascist'} policy becomes law immediately. This cannot be undone.`,
+            confirmLabel:`Enact the ${enacted==='lib'?'Liberal':'Fascist'} policy`,
+            danger: enacted==='fasc',
+            onConfirm: async ()=>{
+              const g2=await dbGet(`games/${S.code}`);
+              if(!g2 || g2.phase!=='legChancellor') return;
+              const h=g2.chanHand.slice();
+              const [dropped]=h.splice(i,1);
+              g2.discard=g2.discard||[]; g2.discard.push(dropped);
+              const law=h[0];
+              g2.chanHand=null;
+              addLog(g2, `${g2.chancellor} enacts a ${law==='lib'?'Liberal':'Fascist'} policy.`);
+              enactPolicy(g2,law,false);
+              await saveGame(g2);
+            }
+          });
         };
       });
       const vb=document.getElementById('vetoBtn');
@@ -2223,12 +2291,27 @@ document.getElementById('joinBtn').onclick = async ()=>{
     const existingNames = room.players ? Object.keys(room.players) : [];
     const game = await dbGet(`games/${code}`);
     const inGame = game && game.players && game.players.some(p=>p.name===name);
-    if(game && !inGame && game.phase!=='gameOver'){
-      toast('That game is already under way — you can watch, and you\'ll be dealt in next round.');
-    } else if(existingNames.includes(safeKey(name)) && !inGame){
-      toast('Someone here already uses that name — pick another.');
+    const nameTaken = existingNames.includes(safeKey(name));
+
+    // Rejoining mid-game with a name that's already dealt in is always fine —
+    // that's you coming back after a dead phone or a closed tab.
+    if(inGame){
+      await dbPut(`rooms/${code}/players/${safeKey(name)}`, Date.now());
+      enterRoom(code, name);
+      toast('Welcome back — your role is unchanged.');
       return;
     }
+    // In the lobby, a matching name is far more likely to be you returning than
+    // a genuine clash, but we can't tell them apart. Ask once.
+    if(nameTaken && S.reclaimArmed !== code+':'+name){
+      S.reclaimArmed = code+':'+name;
+      toast(`"${name}" is already in this room. Tap Join again to reclaim it, or change your name.`);
+      return;
+    }
+    if(game && !inGame && game.phase!=='gameOver'){
+      toast('That game is under way — you can watch, and you\'ll be dealt in next round.');
+    }
+    S.reclaimArmed=null;
     await dbPut(`rooms/${code}/players/${safeKey(name)}`, Date.now());
     enterRoom(code, name);
   }catch(e){ toast('Could not join. Check your connection.'); }
