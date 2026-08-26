@@ -16,6 +16,9 @@
     --crimson:#A31F22; --crimson-dark:#711416;
     --teal:#2E4A52; --teal-dark:#1E3236; --teal-light:#7FB0BB;
     --brass:#C7A233; --ink:#211C15; --ash:#8C8577;
+    /* Ballot colours — deliberately distinct from the faction colours */
+    --ja:#2E7D46; --ja-light:#7FC694; --ja-dark:#1C5330;
+    --nein:#B3282B; --nein-light:#EFA0A2; --nein-dark:#7A1719;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;background:var(--void);color:var(--paper);min-height:100%;}
@@ -178,8 +181,8 @@
     font-family:'Oswald',sans-serif;font-weight:700;font-size:26px;letter-spacing:0.06em;cursor:pointer;
   }
   .vote-btn:active{transform:scale(0.96);}
-  .vote-btn.ja{background:rgba(163,31,34,0.08);border-color:var(--crimson);color:var(--crimson-dark);}
-  .vote-btn.nein{background:rgba(46,74,82,0.08);border-color:var(--teal);color:var(--teal-dark);}
+  .vote-btn.ja{background:rgba(46,125,70,0.10);border-color:var(--ja);color:var(--ja-dark);}
+  .vote-btn.nein{background:rgba(179,40,43,0.10);border-color:var(--nein);color:var(--nein-dark);}
 
   .stamp-overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(20,17,15,0.6);z-index:50;}
   .stamp-overlay.show{display:flex;}
@@ -211,8 +214,8 @@
   .tally-row{display:flex;gap:12px;margin-bottom:16px;}
   .tally-card{flex:1;background:var(--void-2);border:1px solid rgba(236,227,203,0.1);border-radius:4px;padding:14px;text-align:center;}
   .tally-card .num{font-family:'Oswald',sans-serif;font-size:30px;font-weight:700;}
-  .tally-card.ja .num{color:#e08a8c;}
-  .tally-card.nein .num{color:var(--teal-light);}
+  .tally-card.ja .num{color:var(--ja-light);}
+  .tally-card.nein .num{color:var(--nein-light);}
   .tally-card .lbl{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ash);margin-top:3px;}
 
   .win-screen{text-align:center;padding:30px 16px;border-radius:6px;border:3px solid;margin-bottom:16px;}
@@ -230,13 +233,15 @@
   .rrole.fasc{color:#e08a8c;}
   .rrole.hit{color:var(--brass);}
 
+  /* Deliberately faction-neutral: this bar looks identical for every player,
+     so its appearance never hints at what they are. */
   .allies{
-    margin-top:16px;background:rgba(163,31,34,0.12);border:1px solid rgba(224,138,140,0.3);
+    margin-top:16px;background:rgba(236,227,203,0.05);border:1px solid rgba(236,227,203,0.14);
     border-radius:4px;padding:10px 12px;
   }
   .allies summary{
     font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;
-    color:#e08a8c;cursor:pointer;list-style:none;
+    color:var(--brass);cursor:pointer;list-style:none;
   }
   .allies summary::-webkit-details-marker{display:none;}
   .allies-body{font-size:14px;color:var(--paper-2);margin-top:8px;}
@@ -290,8 +295,8 @@
   .cinema-tally .t{display:flex;flex-direction:column;align-items:center;gap:2px;}
   .cinema-tally .tnum{font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(40px,14vw,66px);line-height:1;}
   .cinema-tally .tlbl{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ash);}
-  .cinema-tally .ja .tnum{color:#e08a8c;}
-  .cinema-tally .nein .tnum{color:#9fd4df;}
+  .cinema-tally .ja .tnum{color:var(--ja-light);}
+  .cinema-tally .nein .tnum{color:var(--nein-light);}
   .cinema-dismiss{
     position:absolute;bottom:28px;left:0;right:0;
     font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:0.2em;
@@ -530,7 +535,7 @@
   .allies-section{margin-top:10px;}
   .allies-head{
     font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:0.13em;
-    text-transform:uppercase;color:#e08a8c;margin-bottom:4px;
+    text-transform:uppercase;color:var(--brass);margin-bottom:4px;
   }
   .allies-note{font-size:11.5px;color:var(--ash);font-style:italic;margin-top:5px;}
 
@@ -710,6 +715,67 @@
     .envelope,.env-card,.env-flap,.env-wax{transition:none !important;}
   }
 
+  /* ===== Voting record ===== */
+  .vote-record{
+    background:var(--void-2);border:1px solid rgba(236,227,203,0.12);
+    border-radius:5px;padding:12px;margin-bottom:16px;
+  }
+  .vote-record summary{
+    font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:0.13em;
+    text-transform:uppercase;color:var(--brass);cursor:pointer;list-style:none;
+  }
+  .vote-record summary::-webkit-details-marker{display:none;}
+  .vote-scroll{overflow-x:auto;margin-top:11px;-webkit-overflow-scrolling:touch;}
+  .vote-table{border-collapse:collapse;font-size:11px;width:100%;}
+  .vote-table th,.vote-table td{padding:5px 6px;text-align:center;white-space:nowrap;}
+  .vote-table thead th{
+    font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:0.07em;
+    text-transform:uppercase;color:var(--ash);
+    border-bottom:1px solid rgba(236,227,203,0.15);
+  }
+  .vote-table .vname.lib{color:var(--teal-light);}
+  .vote-table .vname.fasc{color:#e08a8c;}
+  .vote-table tbody tr{border-bottom:1px solid rgba(236,227,203,0.06);}
+  .vround{color:var(--ash);font-family:'JetBrains Mono',monospace;}
+  .vgov{text-align:left !important;color:var(--paper-2);font-size:11px;}
+  .vslash{color:var(--ash);margin:0 3px;}
+  .vcell{
+    font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:0.05em;
+    border-radius:2px;
+  }
+  .vcell.ja{background:rgba(46,125,70,0.35);color:#a8dcbb;}
+  .vcell.nein{background:rgba(179,40,43,0.35);color:#f5b8ba;}
+  .vcell.none{color:#4a453d;background:none;}
+  .vcell.ja.lib,.vcell.nein.lib{box-shadow:inset 0 -2px 0 var(--teal-light);}
+  .vcell.ja.fasc,.vcell.nein.fasc{box-shadow:inset 0 -2px 0 #e08a8c;}
+  .vres{font-family:'JetBrains Mono',monospace;font-size:10px;}
+  .vres.pass{color:var(--teal-light);}
+  .vres.fail{color:#e08a8c;}
+  .vote-key{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px;font-size:10px;}
+  .vkey{font-family:'Oswald',sans-serif;letter-spacing:0.1em;text-transform:uppercase;padding-bottom:2px;}
+  .vkey.lib{color:var(--teal-light);border-bottom:2px solid var(--teal-light);}
+  .vkey.fasc{color:#e08a8c;border-bottom:2px solid #e08a8c;}
+  .vkey-note{color:var(--ash);}
+
+  /* ===== Pending indicators ===== */
+  .pending-wrap{margin-top:16px;width:100%;max-width:300px;}
+  .pending-label{
+    font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:0.18em;
+    text-transform:uppercase;color:var(--ash);margin-bottom:7px;
+  }
+  .pending-list{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;}
+  .pending-chip{
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;
+    background:rgba(199,162,51,0.14);border:1px solid rgba(199,162,51,0.4);
+    color:var(--paper);padding:4px 9px;border-radius:20px;
+    animation:pendingPulse 2s ease-in-out infinite;
+  }
+  @keyframes pendingPulse{0%,100%{opacity:1;}50%{opacity:0.55;}}
+
+  .ptag.done{background:rgba(46,125,70,0.28);color:var(--ja-light);}
+  .ptag.pending{background:rgba(199,162,51,0.2);color:var(--brass);}
+  .prow.awaiting{background:rgba(199,162,51,0.06);}
+
   .log{margin-top:20px;}
   .log-title{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:0.13em;text-transform:uppercase;color:var(--brass);margin-bottom:8px;}
   .log-item{font-size:12.5px;color:var(--ash);padding:5px 0;border-bottom:1px solid rgba(236,227,203,0.06);line-height:1.45;}
@@ -782,6 +848,17 @@
       <h1 class="title">Chamber Roster</h1>
       <p class="sub">Everyone joins on their own phone. Five to ten players. Any player can deal.</p>
       <div id="lobbyPlayers"></div>
+      <div class="variant-panel">
+        <div class="variant-head">
+          <span class="variant-title">Table Options</span>
+        </div>
+        <div class="timer-choice">
+          <div class="timer-choice-label">Discussion timer</div>
+          <div class="timer-buttons" id="timerButtons"></div>
+          <div class="timer-choice-note">A shared countdown during nomination. It never forces anyone to act — it just stops a round going in circles.</div>
+        </div>
+      </div>
+
       <div class="variant-panel">
         <div class="variant-head">
           <span class="variant-title">Special Roles</span>
@@ -893,6 +970,7 @@
   <section class="screen" id="screen-game">
     <div id="boardWrap"></div>
     <div id="gameBody"></div>
+    <div id="playersWrap"></div>
     <div id="alliesWrap"></div>
     <div class="stuck-panel">
       <details class="stuck">
@@ -940,6 +1018,7 @@ const S = { name:'', code:'', joined:false, db:'', game:null, lastRenderKey:'', 
   clientId: Math.random().toString(36).slice(2,10) + Date.now().toString(36) };
 let pollTimer = null;
 let heartbeatTimer = null;
+let timerTick = null;
 
 async function dbGet(path){
   const r = await fetch(`${S.db}/${path}.json`, {cache:'no-store'});
@@ -1032,6 +1111,13 @@ function balanceAdvice(opts){
   else verdict={tone:'lean-even', text:'Looks balanced.'};
   return {verdict, warn};
 }
+
+const TIMER_CHOICES = [
+  {v:0,   label:'No limit'},
+  {v:90,  label:'90 sec'},
+  {v:120, label:'2 min'},
+  {v:180, label:'3 min'}
+];
 
 function specialById(id){ return SPECIALS.find(s=>s.id===id); }
 function enabledSpecials(opts){ return SPECIALS.filter(s=>opts && opts[s.id]); }
@@ -1184,6 +1270,7 @@ async function saveGame(g){ await dbPut(`games/${S.code}`, g); S.game=g; }
 function beginNomination(g){
   g.phase='nomination'; g.nominee=null; g.votes={}; g.chancellor=null;
   g.presHand=null; g.chanHand=null; g.vetoRequested=false; g.pendingPower=null;
+  g.phaseAt = Date.now();   // shared clock start for the discussion timer
 }
 
 function eligibleChancellors(g){
@@ -1244,6 +1331,18 @@ function resolveElection(g){
     if(v==='ja') ja++; else if(v==='nein') nein++;
   });
   g.lastTally={ja,nein};
+
+  // Archive this ballot. Hidden until the game ends, then shown to everyone.
+  g.voteHistory = g.voteHistory || [];
+  g.voteHistory.push({
+    round: g.round,
+    president: currentPresident(g).name,
+    nominee: g.nominee,
+    ja, nein,
+    passed: ja>nein,
+    votes: Object.assign({}, g.votes),
+    libAt: g.lib, fascAt: g.fasc
+  });
 
   if(ja>nein){
     g.chancellor=g.nominee;
@@ -1322,22 +1421,33 @@ function renderBoard(g){
         <div class="pips">${pips}</div>
         <span class="deck-count">deck ${(g.deck||[]).length} · disc ${(g.discard||[]).length}</span>
       </div>
-    </div>
-    ${renderPlayers(g)}`;
+    </div>`;
+  // The player list lives BELOW the action area so the vote buttons are the
+  // first thing on screen and nobody has to scroll to vote.
+  document.getElementById('playersWrap').innerHTML = renderPlayers(g);
 }
 
 function renderPlayers(g){
   const pres=currentPresident(g);
   const cmap=creaturesFor(g.players.map(p=>p.name));
+  // During a ballot, show WHETHER each living player has voted — never what.
+  // Knowing who to chase is public information; the vote itself is not.
+  const balloting = g.phase==='election';
   const rows=g.players.map(p=>{
     let tags='';
+    if(balloting && p.alive){
+      const done = !!(g.votes && g.votes[safeKey(p.name)]);
+      tags += done
+        ? '<span class="ptag done">Voted</span>'
+        : '<span class="ptag pending">Waiting</span>';
+    }
     if(p.name===pres.name) tags+='<span class="ptag pres">Pres</span>';
     if(g.chancellor===p.name) tags+='<span class="ptag chan">Chan</span>';
     else if(g.prevChancellor===p.name) tags+='<span class="ptag prev">Prev Chan</span>';
     if(g.prevPresident===p.name && g.chancellor!==p.name && p.name!==pres.name) tags+='<span class="ptag prev">Prev Pres</span>';
     if(isMe(p.name)) tags+='<span class="ptag you">You</span>';
     const c=cmap[p.name]||CREATURES[0];
-    return `<div class="prow ${p.alive?'':'dead'}"><span class="pchip" style="background:${c.ink};">${c.emoji}</span><span class="pname">${esc(p.name)}</span>${tags}</div>`;
+    return `<div class="prow ${p.alive?'':'dead'} ${balloting && p.alive && !(g.votes&&g.votes[safeKey(p.name)])?'awaiting':''}"><span class="pchip" style="background:${c.ink};">${c.emoji}</span><span class="pname">${esc(p.name)}</span>${tags}</div>`;
   }).join('');
   return `<div class="players"><div class="players-title">The Table</div>${rows}</div>`;
 }
@@ -1424,11 +1534,13 @@ function renderRoleReveal(g){
     actions.innerHTML = `<p class="hint">Your role is sealed inside. Open it somewhere nobody can see your screen.</p>`;
     return;
   }
+  const notReady = g.players.filter(p=>!p.seen).map(p=>p.name);
   actions.innerHTML = `
     <button class="btn btn-ghost" id="resealBtn" style="margin-bottom:10px;">Seal It Again</button>
     <button class="btn btn-primary" id="roleAckBtn">${
       m.seen ? `Waiting — ${seen} / ${g.players.length} ready` : "I've Memorised It"
     }</button>
+    ${m.seen ? pendingChips(notReady) : ''}
     <p class="hint">Keep this private. The game starts once everyone has looked.</p>`;
   const ack=document.getElementById('roleAckBtn');
   ack.disabled = !!m.seen;
@@ -1447,7 +1559,18 @@ function renderRoleReveal(g){
   };
 }
 
-function waitingBlock(title, sub, count, total){
+// Names we're still waiting on, shown as chips. Used for ballots and for the
+// role-reveal step — the fact that someone hasn't acted is public, so this
+// only speeds the table up, it never reveals a choice.
+function pendingChips(names){
+  if(!names.length) return '';
+  return `<div class="pending-wrap">
+    <div class="pending-label">Still to act</div>
+    <div class="pending-list">${names.map(n=>`<span class="pending-chip">${esc(n)}</span>`).join('')}</div>
+  </div>`;
+}
+
+function waitingBlock(title, sub, count, total, extra){
   let prog='';
   if(total){
     prog=`<div class="progress-track"><div class="progress-fill" style="width:${Math.min(100,(count/total)*100)}%"></div></div>
@@ -1455,7 +1578,7 @@ function waitingBlock(title, sub, count, total){
   }
   return `<div class="waiting-wrap">
     <div class="seal"><svg viewBox="0 0 24 24"><path d="M12 1l3.5 2 4 .5.5 4L22 11l-2 3.5.5 4-4 .5L13 22l-1-1-1 1-3.5-3-4-.5.5-4L2 11l2-3.5-.5-4 4-.5L11 1z"/></svg></div>
-    <h2>${title}</h2><p>${sub}</p>${prog}</div>`;
+    <h2>${title}</h2><p>${sub}</p>${prog}${extra||''}</div>`;
 }
 
 // A signature of everything the game body actually depends on. If it hasn't
@@ -1641,6 +1764,80 @@ function renderKey(g){
   ].join('|');
 }
 
+// The full voting record, revealed only once the game is over. Each player's
+// faction is colour-coded so patterns jump out — who kept voting a Fascist
+// government through, who was never fooled.
+// A shared countdown, driven off the phase start time stored in the game, so
+// every phone shows the same number. It never forces an action — it just makes
+// the table aware it's going round in circles.
+function timerStrip(g){
+  const secs = g.options && g.options.timer ? g.options.timer : 0;
+  if(!secs || !g.phaseAt) return '';
+  return `<div class="timer-strip" id="timerStrip" data-start="${g.phaseAt}" data-secs="${secs}">
+    <span class="timer-label">Discussion</span>
+    <span class="timer-clock" id="timerClock">--:--</span>
+    <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+  </div>`;
+}
+function tickTimer(){
+  const el=document.getElementById('timerStrip');
+  if(!el) return;
+  const start=parseInt(el.dataset.start,10);
+  const secs=parseInt(el.dataset.secs,10);
+  const left=Math.max(0, secs - Math.floor((Date.now()-start)/1000));
+  const m=Math.floor(left/60), s=left%60;
+  const clock=document.getElementById('timerClock');
+  const fill=document.getElementById('timerFill');
+  if(clock) clock.textContent = left>0 ? `${m}:${String(s).padStart(2,'0')}` : "Time's up";
+  if(fill) fill.style.width = Math.max(0,(left/secs)*100) + '%';
+  el.classList.toggle('urgent', left<=15 && left>0);
+  el.classList.toggle('expired', left===0);
+}
+
+function renderVoteRecord(g){
+  const hist=g.voteHistory||[];
+  if(!hist.length) return '';
+  const factionOf={};
+  g.players.forEach(p=>{ factionOf[safeKey(p.name)] = p.role==='liberal'?'lib':'fasc'; });
+
+  const rounds = hist.map(h=>{
+    const cells = g.players.map(p=>{
+      const v = h.votes[safeKey(p.name)];
+      if(!v) return `<td class="vcell none" title="not in this vote">·</td>`;
+      const f = factionOf[safeKey(p.name)];
+      return `<td class="vcell ${v} ${f}">${v==='ja'?'JA':'NEIN'}</td>`;
+    }).join('');
+    return `<tr>
+      <td class="vround">${h.round}</td>
+      <td class="vgov">${esc(h.president)}<span class="vslash">/</span>${esc(h.nominee)}</td>
+      ${cells}
+      <td class="vres ${h.passed?'pass':'fail'}">${h.ja}–${h.nein}</td>
+    </tr>`;
+  }).join('');
+
+  const heads = g.players.map(p=>{
+    const f=p.role==='liberal'?'lib':'fasc';
+    const short=p.name.length>6?p.name.slice(0,5)+'…':p.name;
+    return `<th class="vname ${f}" title="${esc(p.name)}">${esc(short)}</th>`;
+  }).join('');
+
+  return `
+    <details class="vote-record" open>
+      <summary>Voting Record — how everyone actually voted</summary>
+      <div class="vote-scroll">
+        <table class="vote-table">
+          <thead><tr><th>#</th><th>Government</th>${heads}<th>Result</th></tr></thead>
+          <tbody>${rounds}</tbody>
+        </table>
+      </div>
+      <div class="vote-key">
+        <span class="vkey lib">Liberal</span>
+        <span class="vkey fasc">Fascist / Hitler</span>
+        <span class="vkey-note">Colour shows what they really were.</span>
+      </div>
+    </details>`;
+}
+
 function renderGame(g){
   const body=document.getElementById('gameBody');
   const m=me(g), pres=currentPresident(g);
@@ -1666,6 +1863,7 @@ function renderGame(g){
         <div class="win-reason">${esc(g.winReason)}</div>
       </div>
       <div class="reveal-list">${rows}</div>
+      ${renderVoteRecord(g)}
       <button class="btn btn-primary" id="againBtn">Play Again — Same Table</button>
       <button class="btn btn-ghost" id="backLobbyBtn">Back to Lobby</button>`;
     document.getElementById('againBtn').onclick = async ()=>{
@@ -1721,7 +1919,7 @@ function renderGame(g){
   if(g.phase==='nomination'){
     if(iAmPres){
       const elig=eligibleChancellors(g);
-      body.innerHTML = officeBanner('president') + `
+      body.innerHTML = officeBanner('president') + timerStrip(g) + `
         <div class="folder" data-tab="Round ${g.round}">
           <h1 class="title">Nominate a Chancellor</h1>
           <p class="sub">Choose who governs with you — the table then votes.</p>
@@ -1738,7 +1936,7 @@ function renderGame(g){
         await saveGame(g2);
       };
     } else {
-      body.innerHTML = turnStrip('Presiding', pres.name) +
+      body.innerHTML = turnStrip('Presiding', pres.name) + timerStrip(g) +
         waitingBlock('Nomination in Progress', `${esc(pres.name)} is choosing a Chancellor.`,0,0);
     }
     return;
@@ -1765,8 +1963,10 @@ function renderGame(g){
       document.getElementById('jaBtn').onclick=()=>submitVote('ja');
       document.getElementById('neinBtn').onclick=()=>submitVote('nein');
     } else {
+      const outstanding = voters.filter(p=>!(g.votes&&g.votes[safeKey(p.name)])).map(p=>p.name);
       body.innerHTML = waitingBlock('Ballot Sealed',
-        `${esc(pres.name)} / ${esc(g.nominee)} — waiting on the table.`, voted, voters.length);
+        `${esc(pres.name)} / ${esc(g.nominee)} — waiting on the table.`,
+        voted, voters.length, pendingChips(outstanding));
     }
     return;
   }
@@ -2063,12 +2263,11 @@ function renderAllies(g){
   const m=me(g);
   const wrap=document.getElementById('alliesWrap');
   if(!m){ wrap.innerHTML=''; S.alliesKey=''; return; }
-  const blocks = knowledgeFor(g, m).filter(b=>
-    !(b.lines.length===1 && /^Nothing/.test(b.lines[0].replace(/<[^>]*>/g,'')))
-  );
-  if(!blocks.length){ wrap.innerHTML=''; S.alliesKey=''; return; }
-  const sp = m.special?specialById(m.special):null;
-  const key = (sp?sp.id:'') + '::' + blocks.map(b=>b.title+b.lines.join(',')).join('|');
+  // Every player gets this bar, worded identically, whatever they are. A plain
+  // Liberal sees "Nothing" inside — but from the outside the bar is the same,
+  // so a glance at someone's screen reveals no more than a glance at your own.
+  const blocks = knowledgeFor(g, m);
+  const key = blocks.map(b=>b.title+b.lines.join(',')).join('|');
   if(S.alliesKey===key) return;
   S.alliesKey=key;
   const inner = blocks.map(b=>`
@@ -2078,7 +2277,7 @@ function renderAllies(g){
       ${b.note?`<div class="allies-note">${b.note}</div>`:''}
     </div>`).join('');
   wrap.innerHTML = `<details class="allies">
-    <summary>${sp?esc(sp.label)+' — what you know':'What you know'} (tap to reveal)</summary>
+    <summary>What you know (tap to reveal)</summary>
     ${inner}
   </details>`;
 }
@@ -2094,7 +2293,7 @@ async function submitVote(vote){
   const overlay=document.getElementById('stampOverlay');
   const word=document.getElementById('stampWord');
   word.textContent = vote==='ja'?'JA':'NEIN';
-  word.style.color = vote==='ja'?'var(--crimson)':'var(--teal-light)';
+  word.style.color = vote==='ja'?'var(--ja-light)':'var(--nein-light)';
   word.classList.remove('animate'); void word.offsetWidth;
   overlay.classList.add('show'); word.classList.add('animate');
   try{ await dbPut(`games/${S.code}/votes/${safeKey(S.name)}`, vote); }
@@ -2293,6 +2492,7 @@ async function renderLobby(){
     hint.textContent=`${cfg.lib} Liberals, ${cfg.fasc} Fascist${cfg.fasc>1?'s':''}, and Hitler.`;
   }
   updateVariantStatus(names.length);
+  renderTableOptions();
   document.getElementById('dealBtn').onclick = async ()=>{
     const cur=await dbGet(`rooms/${S.code}/players`);
     const ns=cur?Object.keys(cur):[];
@@ -2384,7 +2584,9 @@ async function tick(){
     }
 
     renderBoard(g); renderGame(g); renderAllies(g); renderLog(g);
+    tickTimer();
     showScreen('screen-game');
+
 
     // Once every living player has voted, exactly one device resolves it.
     // Each claims the job by writing its own id, then re-reads to see who won
@@ -2416,6 +2618,8 @@ function startPolling(){
   tick();
   if(pollTimer) clearInterval(pollTimer);
   pollTimer=setInterval(tick,1600);
+  if(timerTick) clearInterval(timerTick);
+  timerTick=setInterval(tickTimer,1000);
   // keep the room's timestamp fresh so a long game is never swept mid-play
   if(heartbeatTimer) clearInterval(heartbeatTimer);
   heartbeatTimer=setInterval(()=>{
@@ -2566,6 +2770,19 @@ document.getElementById('abandonBtn').onclick = async ()=>{
     await tick();
   }catch(e){ toast('Could not abandon the game.'); }
 };
+
+function renderTableOptions(){
+  const wrap=document.getElementById('timerButtons');
+  const cur = S.options.timer || 0;
+  wrap.innerHTML = TIMER_CHOICES.map(t=>
+    `<button class="timer-opt ${t.v===cur?'on':''}" data-v="${t.v}">${esc(t.label)}</button>`).join('');
+  wrap.querySelectorAll('button').forEach(b=>{
+    b.onclick = ()=>{
+      S.options.timer = parseInt(b.dataset.v,10);
+      renderTableOptions();
+    };
+  });
+}
 
 document.getElementById('cinema').onclick = closeCinema;
 
