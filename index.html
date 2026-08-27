@@ -846,7 +846,7 @@
     </div>
     <div class="folder" data-tab="Assembly">
       <h1 class="title">Chamber Roster</h1>
-      <p class="sub">Everyone joins on their own phone. Five to ten players. Any player can deal.</p>
+      <p class="sub">Everyone joins on their own phone. Five to fifteen players. Any player can deal.</p>
       <div id="lobbyPlayers"></div>
       <div class="variant-panel">
         <div class="variant-head">
@@ -1057,6 +1057,18 @@ const SPECIALS = [
     tag:'Liberal · knows Churchill',
     desc:'A Liberal shown two names, one of whom is Churchill. If the Doppelgänger is in play, the other is an impostor — and The Spy is not told which is which.',
     balance:'Pushes further towards the Liberals unless the Doppelgänger is in play. Adding The Spy without the Doppelgänger hands the Liberals a second confirmed ally.' },
+  { id:'resistance', label:'The Resistance', faction:'liberal',
+    tag:'Liberal · mistaken for Hitler',
+    desc:'A Liberal the Fascists cannot tell apart from Hitler. Instead of being shown Hitler, the Fascists are shown two names and told one of them is Hitler. You know you are the decoy — they do not.',
+    balance:'Attacks the one certainty the Fascists have. Strong for the Liberals, especially after three Fascist policies when electing the wrong Chancellor wastes a government. Weakest at 5–6 players, where Hitler knows the Fascists and can steer them.' },
+  { id:'informant', label:'The Informant', faction:'liberal',
+    tag:'Liberal · two names, one guilty',
+    desc:'At setup, sees two players: one is a Fascist, the other a Liberal. They are not told which is which.',
+    balance:'Gives the Liberals a thread to pull without proof. Unverifiable to the table, so it starts arguments rather than ending them. Safe to add at any size.' },
+  { id:'martyr', label:'The Martyr', faction:'liberal',
+    tag:'Liberal · speaks from the grave',
+    desc:'If the Martyr is executed, the President who ordered it is told privately that the Martyr was a Liberal. Nobody else is told anything.',
+    balance:'Only fires if the Martyr is actually executed, so it often does nothing. When it lands, it hands one player a fact they must persuade the table to believe. Needs the execution power, so 5–6 player games rarely see it.' },
   { id:'gestapo', label:'Gestapo', faction:'fascist', requires:['churchill'],
     tag:'Fascist · hidden from Churchill',
     desc:'A Fascist invisible to Churchill. Knows the other Fascists and is known by them, but Churchill sees nothing.',
@@ -1069,6 +1081,10 @@ const SPECIALS = [
     tag:'Fascist · false Churchill',
     desc:'A Fascist who appears to The Spy as a possible Churchill, muddying the one clue the Liberals have.',
     balance:'The necessary counterweight to The Spy. Treat these two as a pair — running The Spy without the Doppelgänger tilts the game noticeably Liberal.' },
+  { id:'mole', label:'The Mole', faction:'fascist',
+    tag:'Fascist · reads as Liberal',
+    desc:'A Fascist whose party membership card reads Liberal. Any President who investigates them is told, truthfully as far as the card goes, that they are a Liberal.',
+    balance:'The counter to Investigate Loyalty, which fires early at 9+ players. Pairs naturally with tables where investigations are common; at 5–6 players there is no investigation power, so it does nothing.' },
   { id:'executioner', label:'The Executioner', faction:'fascist', requires:['churchill'],
     tag:'Fascist · one last shot',
     desc:'A Fascist who, if the Liberals enact five policies, gets one chance to name Churchill. Guess right and the Fascists steal the win.',
@@ -1083,7 +1099,11 @@ const BALANCE_PRESETS = [
   { label:'Full intrigue', opts:{churchill:1,spy:1,gestapo:1,doppelganger:1},
     note:'Two informed Liberals, two counters. Needs 7+ players.' },
   { label:'Everything that fits', opts:{churchill:1,spy:1,gestapo:1,doppelganger:1,executioner:1},
-    note:'The most chaotic balanced set. Needs 9–10 players.' }
+    note:'The most chaotic balanced set. Needs 9–10 players.' },
+  { label:'Mistaken identity', opts:{resistance:1,gestapo:1,churchill:1},
+    note:'The Fascists cannot be sure who Hitler is; Churchill cannot see the Gestapo. Needs 7+ players.' },
+  { label:'Counter-intelligence', opts:{churchill:1,gestapo:1,mole:1},
+    note:'Both of Churchill\'s counters, plus a Fascist who survives investigation. Needs 7+ players.' }
 ];
 // Rough balance read on the chosen combination, so the table gets a warning
 // before dealing rather than discovering it three rounds in.
@@ -1097,11 +1117,20 @@ function balanceAdvice(opts){
   if(o.spy && !o.doppelganger){
     warn.push('The Spy without the Doppelgänger gives the Liberals a second confirmed ally. Consider adding it.');
   }
+  if(o.resistance){
+    warn.push('The Resistance is weakest at 5–6 players, where Hitler knows the Fascists and can steer them to the right answer.');
+  }
+  if(o.martyr){
+    warn.push('The Martyr only fires if they are actually executed, so it will often do nothing at all. Treat it as a bonus, not a plan.');
+  }
+  if(o.mole){
+    warn.push('The Mole only matters where Investigate Loyalty exists — that is 7 players and up. At 5–6 it does nothing at all.');
+  }
   if(o.italian && !o.churchill){
     warn.push('The Italian on its own slightly weakens the Fascists, since it costs them a coordinated teammate.');
   }
-  const libLean=(o.churchill?2:0)+(o.spy?2:0)+(o.italian?1:0);
-  const fascLean=(o.gestapo?2:0)+(o.doppelganger?2:0)+(o.executioner?2:0);
+  const libLean=(o.churchill?2:0)+(o.spy?2:0)+(o.italian?1:0)+(o.resistance?2:0)+(o.informant?1:0)+(o.martyr?1:0);
+  const fascLean=(o.gestapo?2:0)+(o.doppelganger?2:0)+(o.executioner?2:0)+(o.mole?1:0);
   let verdict;
   const gap=libLean-fascLean;
   if(gap>=3) verdict={tone:'lean-lib', text:'Leans clearly Liberal.'};
@@ -1139,7 +1168,15 @@ function validateOptions(opts, n){
   return {ok:true, msg:''};
 }
 
-const SETUP = {5:{lib:3,fasc:1},6:{lib:4,fasc:1},7:{lib:4,fasc:2},8:{lib:5,fasc:2},9:{lib:5,fasc:3},10:{lib:6,fasc:3}};
+// Fascist count follows the published pattern: one more Fascist every two
+// players. 11-15 continue it, holding the Fascist share at 40-46%, inside the
+// range the printed game already uses (33-44%).
+const SETUP = {
+  5:{lib:3,fasc:1},  6:{lib:4,fasc:1},  7:{lib:4,fasc:2},  8:{lib:5,fasc:2},
+  9:{lib:5,fasc:3}, 10:{lib:6,fasc:3}, 11:{lib:6,fasc:4}, 12:{lib:7,fasc:4},
+ 13:{lib:7,fasc:5}, 14:{lib:8,fasc:5}, 15:{lib:9,fasc:5}
+};
+const MAX_PLAYERS = 15;
 function powersFor(n){
   if(n<=6) return [null,null,'peek','execute','execute'];
   if(n<=8) return [null,'investigate','specialElection','execute','execute'];
@@ -1210,6 +1247,22 @@ function dealGame(names, options){
   };
 
   // The Spy's two candidates are fixed at deal time so they never reshuffle.
+  // The two names the Fascists are shown, fixed now so they never reshuffle.
+  const hitlerP=players.find(p=>p.role==='hitler');
+  const resist=players.find(p=>p.special==='resistance');
+  if(resist && hitlerP) g.hitlerCandidates = shuffle([hitlerP.name, resist.name]);
+
+  // The Informant's two names: one genuinely Fascist, one genuinely Liberal.
+  const informant=players.find(p=>p.special==='informant');
+  if(informant){
+    const enemyPool=players.filter(p=>p.role==='fascist'||p.role==='hitler');
+    const friendPool=players.filter(p=>p.role==='liberal' && p.name!==informant.name);
+    if(enemyPool.length && friendPool.length){
+      const enemy=shuffle(enemyPool)[0], friend=shuffle(friendPool)[0];
+      g.informantSees = shuffle([enemy.name, friend.name]);
+    }
+  }
+
   const churchill=players.find(p=>p.special==='churchill');
   const dopp=players.find(p=>p.special==='doppelganger');
   if(players.some(p=>p.special==='spy') && churchill){
@@ -1223,21 +1276,56 @@ function knowledgeFor(g, m){
   const n=g.players.length;
   const out=[];
   const fascistsAndHitler = g.players.filter(p=>p.role==='fascist'||p.role==='hitler');
+  const hasResistance = g.players.some(p=>p.special==='resistance') && !!g.hitlerCandidates;
 
   if(m.special==='italian'){
     out.push({title:'Known to you', lines:['Nothing. You are Fascist, but you work alone — the others do not know you either.']});
   } else if(m.role==='fascist'){
-    const mates=fascistsAndHitler
-      .filter(p=>p.name!==m.name && p.special!=='italian')
-      .map(p=>`${esc(p.name)}${p.role==='hitler'?' — <strong>Hitler</strong>':' — Fascist'}`);
-    out.push({title:'Your fellow Fascists', lines: mates.length?mates:['Nobody else is known to you.']});
+    if(hasResistance){
+      // Hitler is withheld and replaced by two candidates, one of whom is a Liberal.
+      const mates=g.players
+        .filter(p=>p.role==='fascist' && p.name!==m.name && p.special!=='italian')
+        .map(p=>`${esc(p.name)} — Fascist`);
+      out.push({title:'Your fellow Fascists', lines: mates.length?mates:['No other Fascist is known to you.']});
+      out.push({
+        title:'One of these two is Hitler',
+        lines: g.hitlerCandidates.map(esc),
+        note:'The other is an ordinary Liberal you cannot tell apart. Electing the wrong one as Chancellor after three Fascist policies wins nothing — and wastes the government.'
+      });
+    } else {
+      const mates=fascistsAndHitler
+        .filter(p=>p.name!==m.name && p.special!=='italian')
+        .map(p=>`${esc(p.name)}${p.role==='hitler'?' — <strong>Hitler</strong>':' — Fascist'}`);
+      out.push({title:'Your fellow Fascists', lines: mates.length?mates:['Nobody else is known to you.']});
+    }
   } else if(m.role==='hitler'){
     if(n<=6){
       const f=g.players.filter(p=>p.role==='fascist'&&p.special!=='italian').map(p=>`${esc(p.name)} — Fascist`);
       out.push({title:'Your fellow Fascists', lines: f.length?f:['Nobody else is known to you.']});
+      if(hasResistance){
+        out.push({title:'They cannot be sure of you', lines:[
+          'The Fascists have been shown two possible Hitlers — you, and a Liberal. They do not know which you are.'
+        ]});
+      }
     } else {
       out.push({title:'Known to you', lines:[`Nothing. With ${n} players, Hitler does not know the Fascists — but they know you.`]});
     }
+  }
+
+  if(m.special==='informant' && g.informantSees){
+    out.push({
+      title:'One of these two is a Fascist',
+      lines: g.informantSees.map(esc),
+      note:'The other is a Liberal. You are not told which is which — and you cannot prove any of this to anyone.'
+    });
+  }
+
+  if(m.special==='resistance'){
+    out.push({
+      title:'You are the decoy',
+      lines:['The Fascists have been shown two names as possible Hitlers. One is the real Hitler. The other is you.'],
+      note:'They may court you, protect you, or try to elect you Chancellor. Electing you wins them nothing. Liberals who suspect you may well execute you.'
+    });
   }
 
   if(m.special==='churchill'){
@@ -1758,6 +1846,7 @@ function renderKey(g){
     (g.presHand||[]).join(','), (g.chanHand||[]).join(','),
     (g.peek||[]).join(','), g.pendingPower,
     g.investigateResult ? g.investigateResult.who : '',
+    g.martyrReveal ? g.martyrReveal.who : '',
     g.winner, g.chaosPolicy,
     g.players.map(p=>p.alive?1:0).join(''),
     g.prevPresident, g.prevChancellor
@@ -1912,6 +2001,35 @@ function renderGame(g){
     } else {
       body.innerHTML = waitingBlock('The Final Act',
         'Five Liberal policies stand — but the Executioner is choosing someone to accuse of being Churchill.',0,0);
+    }
+    return;
+  }
+
+  if(g.phase==='martyrResult'){
+    const r=g.martyrReveal||{};
+    const iAmPres = m && pres.name===m.name;
+    if(iAmPres){
+      body.innerHTML = `
+        <div class="folder" data-tab="A Dying Word">
+          <h1 class="title">${esc(r.who||'')}</h1>
+          <p class="sub">As they are taken away, the truth of their allegiance reaches you — and only you.</p>
+          <div class="role-card liberal" style="margin-bottom:14px;">
+            <div class="role-eyebrow">Party Membership</div>
+            <div class="role-name">Liberal</div>
+          </div>
+          <p class="hint-dark">Nobody else has been told. You may report this honestly, twist it, or say nothing at all — and no one can check.</p>
+          <button class="btn btn-primary" id="martyrDone" style="margin-top:14px;">Done</button>
+        </div>`;
+      document.getElementById('martyrDone').onclick = async ()=>{
+        const g2=await dbGet(`games/${S.code}`);
+        if(!g2 || g2.phase!=='martyrResult') return;
+        g2.martyrReveal=null;
+        advanceAfterPolicy(g2);
+        await saveGame(g2);
+      };
+    } else {
+      body.innerHTML = waitingBlock('The Execution',
+        `${esc(r.who||'A player')} has been removed from the chamber.`,0,0);
     }
     return;
   }
@@ -2169,7 +2287,10 @@ function renderGame(g){
           const tp=playerByName(g2,target);
           g2.investigated=g2.investigated||{};
           g2.investigated[safeKey(target)]=true;
-          g2.investigateResult={who:target,party:tp.party};
+          // The Mole's membership card reads Liberal — the investigation
+          // reports what the card says, not what they are.
+          const shown = tp.special==='mole' ? 'liberal' : tp.party;
+          g2.investigateResult={who:target,party:shown};
           g2.phase='investigateResult';
           addLog(g2, `${pres.name} investigates ${target}.`);
           await saveGame(g2);
@@ -2214,6 +2335,11 @@ function renderGame(g){
             g2.winner='liberal';
             g2.winReason=`${target} was Hitler, and was executed.`;
             g2.phase='gameOver';
+          } else if(tp.special==='martyr'){
+            // The Martyr's allegiance is revealed to the President alone.
+            g2.martyrReveal={who:target, president:pres.name};
+            g2.pendingPower=null;
+            g2.phase='martyrResult';
           } else {
             g2.pendingPower=null;
             advanceAfterPolicy(g2);
@@ -2320,7 +2446,15 @@ const CREATURES = [
   {emoji:'🐈‍⬛', name:'Cat',    ink:'#6B6560'},
   {emoji:'🦡', name:'Badger',   ink:'#77726A'},
   {emoji:'🐇', name:'Hare',     ink:'#A08B70'},
-  {emoji:'🦂', name:'Scorpion', ink:'#9C4E3C'}
+  {emoji:'🦂', name:'Scorpion', ink:'#9C4E3C'},
+  {emoji:'🐆', name:'Leopard',  ink:'#B08A3A'},
+  {emoji:'🦫', name:'Beaver',   ink:'#7E6249'},
+  {emoji:'🦢', name:'Swan',     ink:'#8A93A0'},
+  {emoji:'🐅', name:'Tiger',    ink:'#C4762B'},
+  {emoji:'🦔', name:'Hedgehog', ink:'#8A7B62'},
+  {emoji:'🐒', name:'Macaque',  ink:'#94714C'},
+  {emoji:'🦅', name:'Falcon',   ink:'#7A6A55'},
+  {emoji:'🐬', name:'Porpoise', ink:'#5E86A0'}
 ];
 function hashName(s){
   let h=2166136261;
@@ -2447,7 +2581,7 @@ function updateVariantStatus(n){
 function updateDealButton(n){
   const btn=document.getElementById('dealBtn');
   if(n<5){ btn.disabled=true; btn.textContent=`Need 5 players (${n} here)`; return; }
-  if(n>10){ btn.disabled=true; btn.textContent='Too many players (max 10)'; return; }
+  if(n>MAX_PLAYERS){ btn.disabled=true; btn.textContent=`Too many players (max ${MAX_PLAYERS})`; return; }
   const v=validateOptions(S.options, n);
   btn.disabled = !v.ok;
   btn.textContent = v.ok ? `Deal Roles & Begin (${n} players)` : 'Fix role selection first';
@@ -2485,7 +2619,7 @@ async function renderLobby(){
   updateDealButton(names.length);
   if(names.length<5){
     hint.textContent='Secret Hitler needs at least five players. Everyone should join with the code above.';
-  } else if(names.length>10){
+  } else if(names.length>MAX_PLAYERS){
     hint.textContent='';
   } else {
     const cfg=SETUP[names.length];
@@ -2496,7 +2630,7 @@ async function renderLobby(){
   document.getElementById('dealBtn').onclick = async ()=>{
     const cur=await dbGet(`rooms/${S.code}/players`);
     const ns=cur?Object.keys(cur):[];
-    if(ns.length<5||ns.length>10) return;
+    if(ns.length<5||ns.length>MAX_PLAYERS) return;
     const v=validateOptions(S.options, ns.length);
     if(!v.ok){ toast(v.msg); return; }
     await saveGame(dealGame(ns, S.options));
